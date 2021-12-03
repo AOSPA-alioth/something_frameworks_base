@@ -640,6 +640,8 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
     private int mGoneToDreamingTransitionTranslationY;
     private int mLockscreenToOccludedTransitionTranslationY;
 
+    private boolean mBlockedGesturalNavigation = false;
+
     /**
      * For PanelView fling perflock call
      */
@@ -3663,6 +3665,11 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
         return false;
     }
 
+    @Override
+    public void setBlockedGesturalNavigation(boolean blocked) {
+        mBlockedGesturalNavigation = blocked;
+    }
+
     private void updateUserSwitcherFlags() {
         mKeyguardUserSwitcherEnabled = mResources.getBoolean(
                 com.android.internal.R.bool.config_keyguardUserSwitcher);
@@ -3690,7 +3697,7 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
                 .setFlag(SYSUI_STATE_NOTIFICATION_PANEL_EXPANDED,
                         isFullyExpanded() && !mQsController.getExpanded())
                 .setFlag(SYSUI_STATE_QUICK_SETTINGS_EXPANDED,
-                        isFullyExpanded() && mQsController.getExpanded()).commitUpdate(mDisplayId);
+                        mBlockedGesturalNavigation || (isFullyExpanded() && mQsController.getExpanded())).commitUpdate(mDisplayId);
     }
 
     private void debugLog(String fmt, Object... args) {

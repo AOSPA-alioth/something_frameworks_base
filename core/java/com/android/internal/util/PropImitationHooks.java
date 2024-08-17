@@ -60,6 +60,7 @@ public class PropImitationHooks {
     private static final String PROP_FIRST_API_LEVEL = "persist.sys.pihooks.first_api_level";
 
     private static final String SPOOF_GMS = "persist.sys.somethingos.gms.enabled";
+    private static final String SPOOF_GMS_COMPATIBILITY = "persist.sys.pixelprops.pi";
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
@@ -268,12 +269,13 @@ public class PropImitationHooks {
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
         sIsPhotos = packageName.equals(PACKAGE_GPHOTOS);
         sShouldApplyGMS = SystemProperties.getBoolean(SPOOF_GMS, true);
+        sGMSApplyCompatibility = SystemProperties.getBoolean(SPOOF_GMS_COMPATIBILITY, true);
 
         /* Set Certified Properties for GMSCore
          * Set Stock Fingerprint for ARCore
          */
 
-        if (sIsGms && sShouldApplyGMS) {
+        if (sIsGms && sShouldApplyGMS && sGMSApplyCompatibility) {
             setCertifiedPropsForGms();
         } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
@@ -462,7 +464,7 @@ public class PropImitationHooks {
 
     public static void onEngineGetCertificateChain() {
         // Check stack for SafetyNet or Play Integrity
-        if ((isCallerSafetyNet() || sIsFinsky) && sShouldApplyGMS) {
+        if ((isCallerSafetyNet() || sIsFinsky) && sShouldApplyGMS && sGMSApplyCompatibility) {
             dlog("Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
             throw new UnsupportedOperationException();
         }
